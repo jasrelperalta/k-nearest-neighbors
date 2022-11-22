@@ -1,4 +1,4 @@
-import math
+import math, statistics
 
 def sortFn(dataList):                                           # function used in sorting
     return dataList[-1]
@@ -9,10 +9,8 @@ def computeDistance(row, data, k):
         tempSum = 0
         tempRow = trainRow
         for i in range(len(row)):                               # classification not included
-            # print(row[i], trainRow[i])
             tempSum += (row[i] - tempRow[i])**2
         tempSum = math.sqrt(tempSum)
-        # print(tempRow, tempSum)
         tempRow.append(tempSum)
         if len(tempList) < k:
             tempList.append(tempRow)
@@ -22,29 +20,33 @@ def computeDistance(row, data, k):
                     tempList.remove(tempList[i])
                     tempList.append(tempRow)
                     tempList.sort(key=sortFn)                   # sorts the list based on the last index
-                                                                # idea from https://www.freecodecamp.org/news/python-list-sorting-how-to-order-lists-in-python/
-                    # for i in (tempList):
-                    #     print(i)
-                    # print('\n\n')
-                    break
+                    break                                       # idea from https://www.freecodecamp.org/news/python-list-sorting-how-to-order-lists-in-python/
+                    
 
     return tempList
 
 def classifyNeighbors(list):
-    xcount = 0
-    ycount = 0
+    classes = []
     for i in list:
-        if i[-2] == 0:
-            xcount += 1
-        else:
-            ycount += 1
+        classes.append(int(i[-2]))                              # append their classifications
+    
+    mulClassification = statistics.multimode(classes)           # instance wherein there are two modes
+    classifiction = statistics.mode(classes)                    # single mode
 
-    if xcount > ycount:
-        return 0
+
+    if len(mulClassification) == 1:
+        return classifiction
     else:
-        return 1
+        return breakTie(list, mulClassification)
+
+def breakTie(list, nums):
+    list.sort(key=sortFn)                                       # list the neighbors by their distance
+    for i in list:                                              # start from closest
+        if i[-2] in nums:                                       # item is classified as one from the ties, return it
+            return i[-2]
+
 
 def cleanData(data):
     for row in data:
-        row.pop()
+        row.pop()                                               # remove the distance value
     return data
